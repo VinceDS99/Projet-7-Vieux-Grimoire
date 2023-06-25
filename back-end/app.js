@@ -1,15 +1,10 @@
 const express = require('express');
-
-const app = express();
-
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const Book = require('./models/Book');
+const stuffRoutes = require('./routes/stuff');
 
-const User = require('./models/User');
-
-
-mongoose.connect('mongodb+srv://VinceDS99:neige123@cluster0.bakpevt.mongodb.net/?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://VinceDS99:azerty@cluster0.bakpevt.mongodb.net/?retryWrites=true&w=majority',
 { 
     useNewUrlParser: true,
     useUnifiedTopology: true 
@@ -18,23 +13,37 @@ mongoose.connect('mongodb+srv://VinceDS99:neige123@cluster0.bakpevt.mongodb.net/
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 
-app.use(express.json());
+const app = express();
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.use('/', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
 
-app.post('/api/auth/signup', (req, res, next) => {
-    delete req.body._id;
-    const user = new User({
-        ...req.body
-    });
-    user.save()
-        .then(() => res.status(201).json({ message: 'Inscription réussie !'}))
-        .catch(error => res.status(400).json({error}));
-    });
+app.get("/", (req, res) => {
+    res.send("404 URL NOT FOUND");
+});
+
+// app.post('/api/auth/signup', (req, res, next) => {
+//      delete req.body._id;
+//      const user = new User({
+//          ...req.body
+//      });
+//      user.save()
+//          .then(() => res.status(201).json({ message: 'Inscription réussie !'}))
+//          .catch(error => res.status(400).json({error}));
+//      });
+
+// app.get('/api/books', (req, res, next) => {
+//     Book.find()
+//         .then(books => res.status(200).json(books))
+//         .catch(error => res.status(400).json({error}))
+// });
+
+app.use(bodyParser.json());
+
+app.use('/api/stuff', stuffRoutes);
 
 module.exports = app;
